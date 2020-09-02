@@ -3,12 +3,34 @@ import Chessboard from "chessboardjsx";
 
 class App extends React.Component {
   state = {
+    query: null,
+    numberOfQueens: null,
     result: [],
-    newArr: new Array(5).fill(0).map(() => new Array(5).fill(0)),
+    newArr: new Array(8).fill(0).map(() => new Array(8).fill(0)),
     diagonal: new Set(),
     diagonal2: new Set(),
     vertical: new Set(),
     positions: []
+  }
+
+  query = (event) => {
+    this.state.query = event.target.value
+  }
+  
+  handleSubmit = (event) => {
+    this.state.numberOfQueens = this.state.query
+  }
+
+  setArr = () => {
+    this.setState({
+      newArr: new Array(this.state.numberOfQueens).fill(0).map(() => new Array(this.state.numberOfQueens).fill(0))
+    })
+  }
+
+  setEmptyArr = () => {
+    this.setState({
+      newArr: new Array(1).fill(0).map(() => new Array(1).fill(0))
+    })
   }
 
   placeQueen = (board, i, diagonal, diagonal2, vertical) => {
@@ -75,34 +97,37 @@ class App extends React.Component {
     }
   }
 
-  createBoards = () => {
-    console.log('hey')
-    let position = {}
-    for (let string of this.state.result) {
-      let arr = string.split(' ')
-      for (let element of arr) {
-        if (element != '.') {
-          position[element] = 'wQ'
+  createPositions = () => {
+    for (let arr of this.state.result) {
+      let position = {}
+      for (let string of arr) {
+        let array = string.split(' ')
+        for (let element of array) {
+          if (element != '.' && element != '') {
+            position[element] = 'wQ'
+          }
         }
       }
+      this.state.positions.push(position)
     }
+  }
 
-    this.setState({
-      positions: [...this.state.positions, position]
-    })
+  createBoards = () => {
+    return this.state.positions.map(object => 
+      <Chessboard position={object}/>
+    )
   }
 
   render() {
     return (
       <div>
+        <form onSubmit={this.handleSubmit}>
+          <input onChange={(event) => this.query(event)}></input>
+        </form>
+        {console.log(this.state.newArr)}
         {this.placeQueen(this.state.newArr, 0, this.state.diagonal, this.state.diagonal2, this.state.vertical)}
-        {this.createBoards}
-        {console.log(this.state.result)}
-        <React.Fragment>
-          <Chessboard id="positionObject" position={{ e5: "wK", e4: "wP", e7: "bK" }} />
-          <Chessboard id="startPos" position="start" />
-          <Chessboard id="ruyLopez" position="r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R" />
-        </React.Fragment>
+        {this.createPositions()}
+        {this.createBoards()}
       </div>
     )
   }
